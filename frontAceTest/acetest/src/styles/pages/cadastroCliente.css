@@ -1,0 +1,12 @@
+.tituloCampo {
+    display: block;
+}
+
+.formulario {
+
+    width: 1000px;
+    border: 1px solid black;
+    margin: 100px;
+    padding: 15px 18px;
+    align-items: center;
+}
