@@ -38,11 +38,11 @@ public class ClienteService {
         return clienteBuscado;
     }
 
-    public Cliente pegarUmClientePorNome(@RequestParam String nome){
+    public Cliente pegarUmClientePorNome(String nome){
         List<Cliente> listaClientes = clienteRepository.findAll();
         Cliente clienteBuscado = null;
         for(Cliente cliente: listaClientes){
-            if(cliente.getNome() == nome){
+            if(cliente.getNome().equals(nome)){
                 clienteBuscado = cliente;
             }
         }
@@ -71,4 +71,12 @@ public class ClienteService {
 
     }
     
+
+    public Cliente atualizandoParcela(Cliente cliente){
+        Cliente clienteAntigo = clienteRepository.getReferenceById(cliente.getId());
+        Cliente clienteNovo = cliente;
+        clienteAntigo = clienteNovo;
+        clienteRepository.saveAndFlush(clienteAntigo);
+        return clienteAntigo;
+    }
 }

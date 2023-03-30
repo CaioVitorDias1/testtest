@@ -4,7 +4,7 @@ import "../styles/pages/cadastroCliente.css"
 
 export default function CadastroCliente(){
     
-    const urlPost = "http://localhost:8080/clientes/cadastrar"
+    const urlPost = "http://localhost:8080/clientes/cadastrarComParcela"
     
     const [nome, setNome] = useState("")
     const [cpf, setCpf] = useState("")

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,8 +38,8 @@ public class ClienteController {
     }
 
     @CrossOrigin
-    @GetMapping("/select?nome=")
-    public Cliente pegarClienteNome(@RequestParam(required = true) String nome){
+    @GetMapping("/cliente/{nome}")
+    public Cliente pegarClienteNome(@PathVariable String nome){
       Cliente clienteRetornado = clienteService.pegarUmClientePorNome(nome);
       return clienteRetornado;
     }
@@ -55,5 +56,12 @@ public class ClienteController {
     public Cliente cadastrarComParcela(@RequestBody Cliente cliente){
       clienteService.cadastrarClienteComParcelas(cliente);
       return cliente;
+    }
+
+    @CrossOrigin
+    @PutMapping("/atualizarParcela")
+    public Cliente atualizar(@RequestBody Cliente cliente){
+      Cliente clienteAtualizado = clienteService.atualizandoParcela(cliente);
+      return clienteAtualizado;
     }
 }

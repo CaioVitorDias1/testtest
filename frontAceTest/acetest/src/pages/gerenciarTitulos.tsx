@@ -1,45 +1,14 @@
 import axios from "axios"
+import { error } from "console"
+import { off } from "process"
 import { useEffect, useRef, useState } from "react"
 import "../styles/pages/gerenciarTitulos.css"
 
 export default function GerenciarTitulos(){
 
-    /*const [users, setUsers] = useState(null)
-
-    const pegarClientes = async () => {
-        try{
-            const response = await axios.get("http://localhost:8080/clientes/todos")
-            
-            const data = response.data
-            console.log(data)
-
-            setUsers(data)
-
-        } catch(error){
-            console.log(error)
-        }
-    }
-
-
-    interface Usuario{
-        nome: "",
-       cpf: "",
-       endereco: {
-            rua: "",
-            bairro:"",
-            cidade: ""       },
-       servicoAtual: {
-        precoServico: 0,
-        parcelas: [{}]
-       }
-    } */
-
-   /*useEffect(() => {
-        pegarClientes();
-    }, [])*/
-
     
     interface ClienteInfo{
+        id: "",
         nome: "",
         cpf: ""
         endereco: {
@@ -70,34 +39,98 @@ export default function GerenciarTitulos(){
         }
 
         }
+    
     const [inputUser, setInputUser] = useState("")
 
     const [userInfo, setUserInfo] = useState<ClienteInfo | null>()
-    //const numeroParcela = useRef(null)
-   /* const proximaDataVencimento = useRef(null)
-    const valorPago = useRef(null)
-    const [numeroParcela, setnumeroParcela] = useState(null)*/
-
-    
+   
+    const [proximaParcela, setProximaParcela] = useState<number>()
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        axios.get("http://localhost:8080/clientes/select", { params: {nome: inputUser}})
+        const nome = inputUser;
+
+        axios.get(`http://localhost:8080/clientes/cliente/${nome}`)
         .then(response => {
 
             const cliente = response.data
             setUserInfo(cliente)
             console.log(response)
             console.log(cliente)
-            /*const numeroParcela: React.InputHTMLAttributes<HTMLInputElement> = userInfo.servicoAtual.parcelas.at(2)
-            const proximaDataVencimento = userInfo?.servicoAtual.parcelas.at(3)
-            const valorPago = userInfo?.servicoAtual.parcelas.at(7)*/
+
+           
         }).catch(error => {
             console.log(error)});
+
+        
+
+        userInfo?.servicoAtual.parcelas.forEach(function(objeto, index) {
+        if(objeto.valorPago === 0){
+            setProximaParcela(index)
+        } else {
+            setProximaParcela(0)
+        }})
         }
+
+
+        const [userUpdate, setUserUpdate] = useState<ClienteInfo | null>()
+        const [dataCredito, setDataCredito] = useState("")
+        const [valorPago, setValorPago] = useState("")
+        const [dataPagamento, setDataPagamento] = useState("")
+
+    
+        
+    const handleSubmitUpdate = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setUserUpdate(userInfo)
+
+        
+        
     
 
+
+    const userAtualizado= {
+        id: userUpdate?.id,
+        nome: userUpdate?.nome,
+        cpf: userUpdate?.cpf,
+        endereco: {
+            id: userUpdate?.endereco.id,
+            cep: userUpdate?.endereco.cep,
+            rua: userUpdate?.endereco.rua,
+            bairro:userUpdate?.endereco.bairro,
+            cidade: userUpdate?.endereco.cidade,
+            numero: userUpdate?.endereco.numero,
+            complemento: userUpdate?.endereco.complemento,
+            uf: userUpdate?.endereco.uf
+       },
+       servicoAtual: {
+        id: userUpdate?.servicoAtual.id,
+        precoServico: 1000,
+        parcelas: [{
+            
+            id: userUpdate?.servicoAtual.parcelas[0].id,
+            idCliente: userUpdate?.servicoAtual.parcelas[0].idCliente,
+            numeroParcela: userUpdate?.servicoAtual.parcelas[0].numeroParcela,
+            dataCredito: dataCredito,
+            dataPagamento: dataPagamento,
+            dataVencimento: userUpdate?.servicoAtual.parcelas[0].dataVencimento,
+            valorParcela: userUpdate?.servicoAtual.parcelas[0].valorParcela,
+            valorPago: valorPago
+        }]
+       }
+    }
+        
+        axios.put("http://localhost:8080/clientes/atualizarParcela", userAtualizado)
+        .then(response => {
+            const clienteAtualizado = response.data
+            console.log(clienteAtualizado)
+        })
+        .catch(error => {
+            console.log(error)
+        });
+    }
+   
     return(
         <>
             <div>
@@ -116,7 +149,7 @@ export default function GerenciarTitulos(){
                 </div>
                 <div>
                 <label className="tituloCampo">Próxima parcela</label>
-                <input value={userInfo?.servicoAtual?.parcelas[0].numeroParcela} readOnly>
+                <input value={userInfo?.servicoAtual?.parcelas[proximaParcela].numeroParcela} readOnly>
                     
                 </input>
                     
@@ -130,34 +163,38 @@ export default function GerenciarTitulos(){
                 <div>
                 <label className="tituloCampo" >Valor da parcela</label>
                 <input type="text" value={userInfo?.servicoAtual?.parcelas[0].valorParcela} readOnly>
-                        
+            
                 </input>
                 </div>
+
+                </form>
+
+                <form onSubmit={handleSubmitUpdate}>
                 <div>
                 <label className="tituloCampo" >Data do pagamento</label>
-                <input type="text">
+                <input type="text" value={dataPagamento} onChange={(e) => setDataPagamento(e.target.value)}>
                         
                 </input>
                 </div>
                 <div>
                 <label className="tituloCampo" >Data de crédito</label>
-                <input type="text">
+                <input type="text" value={dataCredito} onChange={(e) => setDataCredito(e.target.value)}>
                         
                 </input>
                 </div>
                 <div>
                 <label className="tituloCampo" >Valor a receber</label>
-                <input type="text">
+                <input type="number" value={valorPago} onChange={(e) => setValorPago(e.target.value)}>
                         
                         </input>
                 </div>
 
                 <div>
-                    <button>
+                    <button type="submit">
                         Registrar pagamento
                     </button>
                 </div>
-            </form>
+                </form>
         </>
     )
 }
